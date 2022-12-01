@@ -1,9 +1,35 @@
-from flask import Flask
+from flask import Flask, redirect, url_for, render_template
+import requests
+import requests_cache
+import time
+
+from constants import AEROAPI_KEY, AEROAPI_BASE_URL, DETROIT_CODE
+
 app = Flask(__name__)
+requests_cache.install_cache(
+    './database/flight_data_cache', backend='sqlite', expire_after=300)
+
 
 @app.route('/')
-def hello():
-    return "Hello, world!"
+def home():
+    # return "Hello, world!  This is the homepage."
+    return render_template('data.html', content=getData())
+
+
+def getData():
+    payload = {'max_pages': 2}
+    auth_header = {'x-apikey': AEROAPI_KEY}
+    url = AEROAPI_BASE_URL + f"airports/{DETROIT_CODE}/flights"
+
+    response = requests.get(url, params=payload, headers=auth_header)
+    now = time.ctime(int(time.time()))
+    print(f"Time: {now}, Used Cache: {response.from_cache}")
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print('Error -- unable to execute request')
+
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)

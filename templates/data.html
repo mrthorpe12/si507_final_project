@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Home Page</title>
+</head>
+
+<body>
+    <h1>SI 507 Final Project</h1>
+    {% for arrival in content['scheduled_arrivals'] %}
+    <p>{{arrival}}</p>
+    {% endfor %}
+</body>
+
+</html>
