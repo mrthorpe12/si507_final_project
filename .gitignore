@@ -1,4 +1,6 @@
 507final/
 database/
 docs/
+json/
 constants.py
+utils.py
