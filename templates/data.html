@@ -7,8 +7,8 @@
 
 <body>
     <h1>SI 507 Final Project</h1>
-    {% for arrival in content['scheduled_arrivals'] %}
-    <p>{{arrival}}</p>
+    {% for airport in content %}
+    <p>{{content[airport].name}}</p>
     {% endfor %}
 </body>
 
