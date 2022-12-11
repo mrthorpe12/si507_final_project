@@ -7,8 +7,9 @@
 
 <body>
     <h1>SI 507 Final Project</h1>
-    {% for airport in content %}
-    <p>{{content[airport].name}}</p>
+    {% for key, value in content.items() %}
+    <h2>{{key}}</h2>
+    <p>{{value}}</p>
     {% endfor %}
 </body>
 
