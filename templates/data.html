@@ -22,7 +22,6 @@
     </form>
     {% if path is defined %}
     {% for leg in path.legs %}
-    <!-- <p>Leg: {{leg.name}}</p> -->
     <p>Leg: <a href="{{ url_for('getInfo', code=leg.code) }}">{{leg.name}}</a></p>
     {% endfor %}
     <p>Total distance: {{(path.mileage / 1000) * 0.621371}} miles</p>
