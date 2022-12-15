@@ -3,5 +3,7 @@ database/
 docs/
 json/
 constants.py
+# test.py
 utils.py
 distances.csv
+test.csv
