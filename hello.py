@@ -1,11 +1,11 @@
-from flask import Flask, redirect, url_for, render_template, request
+from flask import Flask, render_template, request
 from copy import deepcopy
 import requests
 import requests_cache
 import time
 
-from constants import AEROAPI_KEY, AEROAPI_BASE_URL, MAJOR_AIRPORT_DISTS, DETROIT_CODE_ICAO, DELTA_CODE_ICAO
-from utils import open_cache, save_cache, build_cache
+from constants import AEROAPI_KEY, AEROAPI_BASE_URL, MAJOR_AIRPORT_DISTS
+from utils import build_cache
 
 app = Flask(__name__)
 requests_cache.install_cache(
@@ -24,31 +24,6 @@ class FlightPlan():
     def __init__(self, legs, mileage):
         self.legs = legs
         self.mileage = mileage
-
-
-@app.route('/', methods=['GET', 'POST'])
-def home():
-    airports = loadData(MAJOR_AIRPORT_DISTS)
-    originCode = ""
-    destCode = ""
-
-    if request.method == "POST":
-        originCode = request.form['origin']
-        destCode = request.form['dest']
-
-    print('Origin code: ', originCode)
-    print('Destination code: ', destCode)
-
-    userOrigin = getAirport(originCode, airports)
-    userDest = getAirport(destCode, airports)
-
-    print(f'Selected origin: {userOrigin}\nType: {type(userOrigin)}')
-    print(f'Selected dest: {userDest}\nType: {type(userDest)}')
-
-    shortestPlan = FlightPlan([], 0)
-    findPath([FlightPlan([userOrigin], 0)], userDest, shortestPlan)
-
-    return render_template('data.html', content=airports, path=shortestPlan)
 
 
 def findPath(originList, dest, shortestPlan, searchedList=[]):
@@ -84,25 +59,6 @@ def getAirport(code, airportDict):
             return airport
 
 
-def getData():
-    # payload = {'max_pages': 2}
-    auth_header = {'x-apikey': AEROAPI_KEY}
-    # url = AEROAPI_BASE_URL + f"airports/{DETROIT_CODE_ICAO}/flights"
-    url = AEROAPI_BASE_URL + f"operators/{DELTA_CODE_ICAO}/flights"
-
-    # response = requests.get(url, params=payload, headers=auth_header)
-    response = requests.get(url, headers=auth_header)
-    now = time.ctime(int(time.time()))
-    print(f"Time: {now}, Used Cache: {response.from_cache}")
-
-    build_cache(response)
-
-    if response.status_code == 200:
-        return response.json()
-    else:
-        print('Error -- unable to execute request')
-
-
 def loadData(file):
     airportList = {}
     document = open(file, "r")
@@ -131,6 +87,53 @@ def loadData(file):
         target.destinations.append((airportList.get(destName), distance))
 
     return airportList
+
+
+@app.route('/', methods=['GET', 'POST'])
+def home():
+    airports = loadData(MAJOR_AIRPORT_DISTS)
+    originCode = ""
+    destCode = ""
+
+    if request.method == "POST":
+        originCode = request.form['origin']
+        destCode = request.form['dest']
+
+        print('Origin code: ', originCode)
+        print('Destination code: ', destCode)
+
+        userOrigin = getAirport(originCode, airports)
+        userDest = getAirport(destCode, airports)
+
+        print(f'Selected origin: {userOrigin}\nType: {type(userOrigin)}')
+        print(f'Selected dest: {userDest}\nType: {type(userDest)}')
+
+        shortestPlan = FlightPlan([], 0)
+        findPath([FlightPlan([userOrigin], 0)], userDest, shortestPlan)
+
+        return render_template('data.html', content=airports, path=shortestPlan)
+
+    return render_template('data.html', content=airports)
+
+
+@app.route('/airportinfo/<code>')
+def getInfo(code=""):
+    data_json = {}
+    auth_header = {'x-apikey': AEROAPI_KEY}
+    url = AEROAPI_BASE_URL + f"airports/K{code}"
+
+    response = requests.get(url, headers=auth_header)
+    now = time.ctime(int(time.time()))
+    print(f"Time: {now}, Used Cache: {response.from_cache}")
+
+    # build_cache(response)
+
+    if response.status_code == 200:
+        data_json = response.json()
+    else:
+        print('Error -- unable to execute request')
+
+    return render_template('info.html', code=code, data=data_json)
 
 
 if __name__ == "__main__":

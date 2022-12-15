@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Info Page</title>
+</head>
+
+<body>
+    <ul>
+        <li>Airport Code (IATA): {{code}}</li>
+        {% if data is defined %}
+        <li>Airport Code (ICAO): {{data['code_icao']}}</li>
+        <li>Name: {{data['name']}}</li>
+        <li>Elevation: {{data['elevation']}}</li>
+        <li>City: {{data['city']}}</li>
+        <li>State: {{data['state']}}</li>
+        <li>Coordinates:</li>
+        <ul>
+            <li>Longitude: {{data['longitude']}}</li>
+            <li>Latitude: {{data['latitude']}}</li>
+        </ul>
+        <li>Timezone: {{data['timezone']}}</li>
+        <br>
+        <li>Link: <a href="{{data['wiki_url']}}">{{data['wiki_url']}}</a></li>
+        {% endif %}
+    </ul>
+</body>
+
+</html>
