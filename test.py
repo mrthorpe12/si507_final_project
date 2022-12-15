@@ -38,8 +38,6 @@ def _findPath(origin, dest, count=0, searchedList=[], pathList=[]):
 
 
 def findPath(originList, dest, shortestPlan, searchedList=[]):
-    # loop through all airports in originList.distances
-    # searchedList = [airport.name for airport in originList.legs]
     for plan in originList:
         searchedList.append(plan.legs[-1])
     nextList = []
@@ -113,8 +111,10 @@ def main():
 
     # path = findPath(userOrigin, userDest[0])
     shortestPlan = FlightPlan([], 0)
-    path = findPath([FlightPlan(userOrigin, 0)], userDest[0], shortestPlan)
-    print('Path: ', path)
+    findPath([FlightPlan(userOrigin, 0)], userDest[0], shortestPlan)
+
+    for leg in shortestPlan.legs:
+        print('Leg: ', leg.name)
 
 
 if __name__ == "__main__":

@@ -1,9 +1,10 @@
 from flask import Flask, redirect, url_for, render_template, request
+from copy import deepcopy
 import requests
 import requests_cache
 import time
 
-from constants import AEROAPI_KEY, AEROAPI_BASE_URL, AIRPORT_DISTS, DETROIT_CODE_ICAO, DELTA_CODE_ICAO
+from constants import AEROAPI_KEY, AEROAPI_BASE_URL, MAJOR_AIRPORT_DISTS, DETROIT_CODE_ICAO, DELTA_CODE_ICAO
 from utils import open_cache, save_cache, build_cache
 
 app = Flask(__name__)
@@ -27,7 +28,7 @@ class FlightPlan():
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    airports = loadData(AIRPORT_DISTS)
+    airports = loadData(MAJOR_AIRPORT_DISTS)
     originCode = ""
     destCode = ""
 
@@ -44,7 +45,37 @@ def home():
     print(f'Selected origin: {userOrigin}\nType: {type(userOrigin)}')
     print(f'Selected dest: {userDest}\nType: {type(userDest)}')
 
-    return render_template('data.html', content=airports)
+    shortestPlan = FlightPlan([], 0)
+    findPath([FlightPlan([userOrigin], 0)], userDest, shortestPlan)
+
+    return render_template('data.html', content=airports, path=shortestPlan)
+
+
+def findPath(originList, dest, shortestPlan, searchedList=[]):
+    for plan in originList:
+        searchedList.append(plan.legs[-1])
+    nextList = []
+    for plan in originList:
+        originAirport = plan.legs[-1]
+        for childAirport, distance in originAirport.destinations:
+            if childAirport not in searchedList:
+                legsCopy = deepcopy(plan.legs)
+                legsCopy.append(childAirport)
+                childPlan = FlightPlan(
+                    legs=legsCopy, mileage=plan.mileage+distance)
+                if childAirport.name != dest.name:
+                    nextList.append(childPlan)
+                else:
+                    if len(childPlan.legs) > 2:
+                        if shortestPlan.mileage == 0 or childPlan.mileage < shortestPlan.mileage:
+                            shortestPlan.legs = childPlan.legs
+                            shortestPlan.mileage = childPlan.mileage
+                        # print(childPlan.legs, childPlan.mileage)
+
+    # print('Length of next list: ', len(nextList))
+    if len(nextList) > 0:
+        findPath(originList=nextList, dest=dest, shortestPlan=shortestPlan,
+                 searchedList=searchedList)
 
 
 def getAirport(code, airportDict):

@@ -20,10 +20,10 @@
         </select>
         <input type="submit">
     </form>
-    <!-- {% for key, value in content.items() %}
-    <h2>{{key}}</h2>
-    <p>{{value}}</p>
-    {% endfor %} -->
+    {% for leg in path.legs %}
+    <p>Leg: {{leg.name}}</p>
+    {% endfor %}
+    <p>Total distance: {{(path.mileage / 1000) * 0.621371}} miles</p>
 </body>
 
 </html>

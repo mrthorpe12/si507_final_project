@@ -6,4 +6,5 @@ constants.py
 # test.py
 utils.py
 distances.csv
+major_distances.csv
 test.csv
