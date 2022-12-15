@@ -7,10 +7,23 @@
 
 <body>
     <h1>SI 507 Final Project</h1>
-    {% for key, value in content.items() %}
+    <form method="POST" action="/">
+        <select name="origin">
+            {% for airport in content.values() %}
+            <option value={{airport.code}}>{{airport.name}}</option>
+            {% endfor %}
+        </select>
+        <select name="dest">
+            {% for airport in content.values() %}
+            <option value={{airport.code}}>{{airport.name}}</option>
+            {% endfor %}
+        </select>
+        <input type="submit">
+    </form>
+    <!-- {% for key, value in content.items() %}
     <h2>{{key}}</h2>
     <p>{{value}}</p>
-    {% endfor %}
+    {% endfor %} -->
 </body>
 
 </html>

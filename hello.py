@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, render_template
+from flask import Flask, redirect, url_for, render_template, request
 import requests
 import requests_cache
 import time
@@ -16,14 +16,41 @@ class Airport():
         self.name = name
         self.code = code
         self.city = city
-        self.distances = []
+        self.destinations = []
 
 
-@app.route('/')
+class FlightPlan():
+    def __init__(self, legs, mileage):
+        self.legs = legs
+        self.mileage = mileage
+
+
+@app.route('/', methods=['GET', 'POST'])
 def home():
     airports = loadData(AIRPORT_DISTS)
-    # return "Hello, world!  This is the homepage."
+    originCode = ""
+    destCode = ""
+
+    if request.method == "POST":
+        originCode = request.form['origin']
+        destCode = request.form['dest']
+
+    print('Origin code: ', originCode)
+    print('Destination code: ', destCode)
+
+    userOrigin = getAirport(originCode, airports)
+    userDest = getAirport(destCode, airports)
+
+    print(f'Selected origin: {userOrigin}\nType: {type(userOrigin)}')
+    print(f'Selected dest: {userDest}\nType: {type(userDest)}')
+
     return render_template('data.html', content=airports)
+
+
+def getAirport(code, airportDict):
+    for airport in airportDict.values():
+        if airport.code == code:
+            return airport
 
 
 def getData():
@@ -53,14 +80,14 @@ def loadData(file):
 
     for line in lines:
         data = line.split(',')
-        originName = data[0]
-        originCity = data[1]
-        originCode = data[2]
+        originName = data[0].strip('"')
+        originCity = data[1].strip('"')
+        originCode = data[2].strip('"')
 
-        destName = data[3]
-        destCity = data[4]
-        destCode = data[5]
-        distance = data[-1]
+        destName = data[3].strip('"')
+        destCity = data[4].strip('"')
+        destCode = data[5].strip('"')
+        distance = float(data[-1].lstrip('"').rstrip('"\n'))
 
         if originName not in airportList.keys():
             airportList[originName] = Airport(
@@ -70,7 +97,7 @@ def loadData(file):
             airportList[destName] = Airport(destName, destCode, destCity)
 
         target = airportList.get(originName)
-        target.distances.append((airportList.get(destName), distance))
+        target.destinations.append((airportList.get(destName), distance))
 
     return airportList
 
