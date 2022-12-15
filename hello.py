@@ -5,8 +5,8 @@ import requests
 import requests_cache
 import time
 
-from constants import AEROAPI_KEY, AEROAPI_BASE_URL, MAJOR_AIRPORT_DISTS
-import utils
+from utils.constants import AEROAPI_KEY, AEROAPI_BASE_URL, MAJOR_AIRPORT_DISTS
+import utils.utils as utils
 
 app = Flask(__name__)
 requests_cache.install_cache(
@@ -124,6 +124,8 @@ def home():
     airports = loadData(MAJOR_AIRPORT_DISTS)
     originCode = ""
     destCode = ""
+
+    utils.build_cache(airports)
 
     if request.method == "POST":
         originCode = request.form['origin']

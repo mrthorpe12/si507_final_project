@@ -1,4 +1,4 @@
-from constants import AIRPORT_DISTS
+from utils.constants import AIRPORT_DISTS
 from copy import deepcopy
 
 
