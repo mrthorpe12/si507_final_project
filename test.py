@@ -1,4 +1,5 @@
 from constants import AIRPORT_DISTS
+from copy import deepcopy
 
 
 class Airport():
@@ -6,11 +7,17 @@ class Airport():
         self.name = name
         self.code = code
         self.city = city
-        self.distances = []
+        self.destinations = []
+
+
+class FlightPlan():
+    def __init__(self, legs, mileage):
+        self.legs = legs
+        self.mileage = mileage
 
 
 def _findPath(origin, dest, count=0, searchedList=[], pathList=[]):
-    for airport, distance in origin.distances:
+    for airport, distance in origin.destinations:
         # print(airport.name, distance)
         if count == 0:
             if airport.name != dest.name and airport not in searchedList:
@@ -30,23 +37,33 @@ def _findPath(origin, dest, count=0, searchedList=[], pathList=[]):
                 return pathList
 
 
-def findPath(originList, dest, searchedList=[], pathList=[]):
+def findPath(originList, dest, shortestPlan, searchedList=[]):
     # loop through all airports in originList.distances
+    # searchedList = [airport.name for airport in originList.legs]
+    for plan in originList:
+        searchedList.append(plan.legs[-1])
     nextList = []
-    for airport in originList:
-        for childAirport, distance in airport.distances:
-            print(childAirport.name)
-            if childAirport.name != dest.name and childAirport not in searchedList:
-                nextList.append(childAirport)
-            else:
-                print('Found!')
-
-            searchedList.append(childAirport)
+    for plan in originList:
+        originAirport = plan.legs[-1]
+        for childAirport, distance in originAirport.destinations:
+            if childAirport not in searchedList:
+                legsCopy = deepcopy(plan.legs)
+                legsCopy.append(childAirport)
+                childPlan = FlightPlan(
+                    legs=legsCopy, mileage=plan.mileage+distance)
+                if childAirport.name != dest.name:
+                    nextList.append(childPlan)
+                else:
+                    if len(childPlan.legs) > 2:
+                        if shortestPlan.mileage == 0 or childPlan.mileage < shortestPlan.mileage:
+                            shortestPlan.legs = childPlan.legs
+                            shortestPlan.mileage = childPlan.mileage
+                        # print(childPlan.legs, childPlan.mileage)
 
     # print('Length of next list: ', len(nextList))
     if len(nextList) > 0:
-        findPath(originList=nextList, dest=dest,
-             searchedList=searchedList, pathList=pathList)
+        findPath(originList=nextList, dest=dest, shortestPlan=shortestPlan,
+                 searchedList=searchedList)
 
 
 def loadData(file):
@@ -74,7 +91,7 @@ def loadData(file):
             airportList[destName] = Airport(destName, destCode, destCity)
 
         target = airportList.get(originName)
-        target.distances.append((airportList.get(destName), distance))
+        target.destinations.append((airportList.get(destName), distance))
 
     return airportList
 
@@ -94,8 +111,10 @@ def main():
     print(f'User origin: {userOrigin[0]} is of type {type(userOrigin[0])}')
     print(f'User destination: {userDest[0]} is of type {type(userDest[0])}')
 
-    path = findPath(userOrigin, userDest[0])
-    # print('Path: ', path)
+    # path = findPath(userOrigin, userDest[0])
+    shortestPlan = FlightPlan([], 0)
+    path = findPath([FlightPlan(userOrigin, 0)], userDest[0], shortestPlan)
+    print('Path: ', path)
 
 
 if __name__ == "__main__":
