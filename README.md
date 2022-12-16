@@ -45,4 +45,6 @@ Additional Resources:
 
 ## Data Structures
 
+This project uses a graph consisting of two types of objects: Airports and FlightPlans.  Each Airport object has a name, code, city, and a list of destinations which contains all other Airport objects and their relative distances (measured in meters).  Each FlightPlan object has a legs parameter and a mileage parameter, both of which are used to determine the shortest non-direct flight plan (path) between the user's point of origin and their destination.  
 
+The graph is constructed using a breadth-first search.  The point of origin is passed in as a FlightPlan object within a list.  The origin's children (all airports in the origin's destination list) are iterated over and are checked to ensure they have not already been traversed.  If a child has not been traversed, it is added to a list of FlightPlan objects which will be passed in on recursion.  The function runs until it has identified a FlightPlan object which is shorter in length than any other such object, at which point it is terminated.  The new shortestPath can be extracted and used in the main code.
