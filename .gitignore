@@ -4,3 +4,4 @@ database/
 docs/
 json/
 utils/
+test.py
