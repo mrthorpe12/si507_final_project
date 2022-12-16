@@ -1,9 +1,9 @@
 # SI 507 Final Project
 
-Name: Maxwell Thorpe
-Course: SI 507
-Instructor: Bobby Madamanchi
-Term: Fall 2022
+Name: Maxwell Thorpe  
+Course: SI 507  
+Instructor: Bobby Madamanchi  
+Term: Fall 2022  
 
 ## Instructions
 
