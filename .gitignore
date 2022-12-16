@@ -1,2 +1,9 @@
-docs/
 507final/
+assets/
+data/test/
+database/
+docs/
+json/
+__pycache__/
+utils/
+test.py

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Home Page</title>
+</head>
+
+<body>
+    <h1>SI 507 Final Project</h1>
+    <form method="POST" action="/">
+        <select name="origin">
+            {% for airport in content.values() %}
+            <option value={{airport.code}}>{{airport.name}}</option>
+            {% endfor %}
+        </select>
+        <select name="dest">
+            {% for airport in content.values() %}
+            <option value={{airport.code}}>{{airport.name}}</option>
+            {% endfor %}
+        </select>
+        <input type="submit">
+    </form>
+    {% if path is defined %}
+    {% for leg in path.legs %}
+    <p>Leg: <a href="{{ url_for('getInfo', code=leg.code) }}">{{leg.name}}</a></p>
+    {% endfor %}
+    <p>Total distance: {{(path.mileage / 1000) * 0.621371}} miles</p>
+    {% endif %}
+</body>
+
+</html>
