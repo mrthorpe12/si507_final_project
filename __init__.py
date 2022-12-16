@@ -81,6 +81,42 @@ def getAirport(code, airportDict):
             return airport
 
 
+def graphToJson(airportDict):
+    """Function for converting graph to JSON file
+
+        Parameters:
+            airportDict (dict): Dictionary containing graph representation of airports
+
+        Returns:
+            None"""
+
+    json = '{'
+
+    for key, value in airportDict.items():
+        if len(json) > 1:
+            json += ','
+        json += '"' + key + '": {'
+        json += '"name": "' + value.name + '",'
+        json += '"code": "' + value.code + '",'
+        json += '"city": "' + value.city + '",'
+        json += '"destinations": ' + '{'
+        have = False
+        for airport, dist in value.destinations:
+            if have:
+                json += ','
+            json += '"' + airport.name + '": '
+            json += str(dist)
+            have = True
+        json += '}'
+        json += '}'
+
+    json += '}'
+
+    fw = open('graph.json', 'w')
+    fw.write(json)
+    fw.close()
+
+
 def loadData(file):
     """Function for loading airport data from .csv files.
 
@@ -122,6 +158,7 @@ def loadData(file):
 @app.route('/', methods=['GET', 'POST'])
 def home():
     airports = loadData(MAJOR_AIRPORT_DISTS)
+    graphToJson(airports)
     originCode = ""
     destCode = ""
 
